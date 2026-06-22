@@ -15,10 +15,21 @@ pipeline {
                 sh 'javac src/Main.java'
             }
         }
+        
+        stage('Check Docker') {
+            steps {
+                sh '''
+                    whoami
+                    pwd
+                    which docker
+                    docker --version
+                '''
+            }
+        }
 
         stage("Build Docker Image") {
             steps {
-                sh "docker build -t javaapp ."
+                sh "docker build -t starbucks ."
             }
         }
 
@@ -26,12 +37,13 @@ pipeline {
             steps {
                 script {
                     withDockerRegistry(credentialsId: 'docker') {
-                        sh "docker tag javaapp afeece/javaapp:latest"
-                        sh "docker push afeece/javaapp:latest"
+                        sh "docker tag starbucks vikas4cloud/starbucks:latest"
+                        sh "docker push vikas4cloud/starbucks:latest"
                     }
                 }
             }
         }
+    }
     
     post {
         always {
@@ -44,5 +56,4 @@ pipeline {
             echo 'Build failed. Please check the logs above.'
         }
     }
-}
 }
