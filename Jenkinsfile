@@ -15,35 +15,23 @@ pipeline {
                 sh 'javac src/Main.java'
             }
         }
-        
-        stage('Check Docker') {
+
+        stage("Build Docker Image") {
             steps {
-                sh '''
-                    whoami
-                    pwd
-                    which docker
-                    docker --version
-                '''
+                sh "docker build -t javaapp ."
             }
         }
 
-        stage('Build Docker Image') {
+        stage("Tag & Push to DockerHub") {
             steps {
-                echo 'Building Docker image...'
-                sh 'docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .'
-                sh 'docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${IMAGE_NAME}:latest'
+                script {
+                    withDockerRegistry(credentialsId: 'docker') {
+                        sh "docker tag javaapp afeece/javaapp:latest"
+                        sh "docker push afeece/javaapp:latest"
+                    }
+                }
             }
         }
-        
-        // stage('Run Docker Container') {
-        //     steps {
-        //         echo 'Running Docker container...'
-        //         sh '''
-        //             docker run --rm ${IMAGE_NAME}:${IMAGE_TAG}
-        //         '''
-        //     }
-        // }
-    }
     
     post {
         always {
@@ -56,4 +44,5 @@ pipeline {
             echo 'Build failed. Please check the logs above.'
         }
     }
+}
 }
