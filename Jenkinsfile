@@ -16,6 +16,17 @@ pipeline {
             }
         }
         
+        stage('Check Docker') {
+            steps {
+                sh '''
+                    whoami
+                    pwd
+                    which docker
+                    docker --version
+                '''
+            }
+        }
+
         stage('Build Docker Image') {
             steps {
                 echo 'Building Docker image...'
